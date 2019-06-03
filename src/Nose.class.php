@@ -33,7 +33,7 @@ class Nose
 
 	static function test($files)
 	{
-		foreach($files as $file)
+		foreach($files as $i => $file)
 		{
 			$funcs = get_defined_functions()["user"];
 			$classes = get_declared_classes();
@@ -41,24 +41,41 @@ class Nose
 			require $file;
 			$funcs = array_diff(get_defined_functions()["user"], $funcs);
 			$classes = array_diff(get_declared_classes(), $classes);
-			echo $file."\n";
+			$last_file = count($files) - 1 == $i;
+			echo ($last_file ? "└" : "├")." $file\n";
 			if($funcs)
 			{
-				echo "\t<no class>\n";
+				$j = 0;
 				foreach($funcs as $func)
 				{
-					// Reflecting function to preserve casing
-					/** @noinspection PhpUnhandledExceptionInspection */
-					echo "\t\t".(new ReflectionFunction($func))->getName()."\n";
-					ob_start(function($buffer)
+					$last_func = !$classes && count($funcs) == ++$j;
+					$succ = false;
+					ob_start(function($buffer) use (&$last_file, &$last_func, &$func, &$succ)
 					{
-						return preg_replace('/^(.*)$/m', "\t\t\t$1", $buffer);
+						// Reflecting function to preserve casing
+						/** @noinspection PhpUnhandledExceptionInspection */
+						$out = ($last_file ? " " : "│")." ".($last_func ? "└" : "├")." ".(new ReflectionFunction($func))->getName().($succ ? " ✓" : "")."\n";
+						$lines = explode("\n", trim($buffer));
+						foreach($lines as $l => $line)
+						{
+							if(!$line)
+							{
+								unset($lines[$l]);
+							}
+						}
+						$lines = array_values($lines);
+						foreach($lines as $l => $line)
+						{
+							$out .= ($last_file ? " " : "│")." ".($last_func ? " " : "│")." ".(count($lines) - 1 == $l ? "└" : "├")." ".trim($line)."\n";
+						}
+						return $out;
 					});
 					try
 					{
 						$func();
+						$succ = true;
 					}
-						/** @noinspection PhpRedundantCatchClauseInspection */
+					/** @noinspection PhpRedundantCatchClauseInspection */
 					catch(AssertionFailedException $e)
 					{
 						echo $e->getMessage()."\n";
@@ -70,21 +87,39 @@ class Nose
 					ob_end_flush();
 				}
 			}
+			$j = 0;
 			foreach($classes as $class)
 			{
-				echo "\t$class\n";
-				foreach(get_class_methods($class) as $func)
+				$last_class = count($classes) == ++$j;
+				echo ($last_file ? " " : "│")." ".($last_class ? "└" : "├")." $class\n";
+				$funcs = get_class_methods($class);
+				foreach($funcs as $k => $func)
 				{
-					echo "\t\t$func\n";
-					ob_start(function($buffer)
+					$succ = false;
+					ob_start(function($buffer) use (&$last_file, &$last_class, &$funcs, &$k, &$func, &$succ)
 					{
-						return preg_replace('/^(.*)$/m', "\t\t\t$1", $buffer);
+						$out = ($last_file ? " " : "│")." ".($last_class ? " " : "│")." ".(count($funcs) - 1 == $k ? "└" : "├")." $func".($succ ? " ✓" : "")."\n";
+						$lines = explode("\n", trim($buffer));
+						foreach($lines as $l => $line)
+						{
+							if(!$line)
+							{
+								unset($lines[$l]);
+							}
+						}
+						$lines = array_values($lines);
+						foreach($lines as $l => $line)
+						{
+							$out .= ($last_file ? " " : "│")." ".($last_class ? " " : "│")." ".(count($funcs) - 1 == $k ? " " : "│")." ".(count($lines) - 1 == $l ? "└" : "├")." ".trim($line)."\n";
+						}
+						return $out;
 					});
 					try
 					{
 						@eval("{$class}::{$func}();");
+						$succ = true;
 					}
-						/** @noinspection PhpRedundantCatchClauseInspection */
+					/** @noinspection PhpRedundantCatchClauseInspection */
 					catch(AssertionFailedException $e)
 					{
 						echo $e->getMessage()."\n";
