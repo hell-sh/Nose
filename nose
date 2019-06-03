@@ -1,0 +1,19 @@
+#!/usr/bin/env php
+<?php
+require "src/AssertionFailedException.class.php";
+require "src/Nose.class.php";
+$files = Nose::index(".");
+if(@$argv[1] == "dry")
+{
+    if(count($files) == 0)
+    {
+        die("No files were discovered.\n");
+    }
+    echo "Files discovered:\n";
+    foreach($files as $file)
+    {
+        echo substr($file, 2)."\n";
+    }
+    exit;
+}
+Nose::test($files);
