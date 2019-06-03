@@ -7,12 +7,12 @@ class MyOtherTestClass
 		Nose::assertNotNull(null);
 	}
 
-	function someEmptyTest()
-	{
-	}
+	function someEmptyTest() {}
 
 	function someOtherTest()
 	{
 		Nose::assertTrue(true);
 	}
 }
+
+function iWillBeIgnored($because_of_my_required_parameter) {}

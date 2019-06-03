@@ -9,6 +9,8 @@ class MyTestClass
 		Nose::assert(2 + 2 == 4);
 		Nose::assertEquals(2 + 2, 5);
 	}
+
+	function iWillBeIgnored($because_of_my_required_parameter) {}
 }
 
 /**

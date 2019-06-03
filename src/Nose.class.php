@@ -51,6 +51,13 @@ if(!class_exists("Nose"))
 				echo ($last_file ? "└" : "├")." $file\n";
 				if($funcs)
 				{
+					foreach($funcs as $j => $func)
+					{
+						if((new ReflectionFunction($func))->getNumberOfRequiredParameters() > 0)
+						{
+							unset($funcs[$j]);
+						}
+					}
 					$j = 0;
 					foreach($funcs as $func)
 					{
@@ -110,6 +117,14 @@ if(!class_exists("Nose"))
 					$last_class = count($classes) == ++$j;
 					echo ($last_file ? " " : "│")." ".($last_class ? "└" : "├")." $class\n";
 					$funcs = get_class_methods($class);
+					foreach($funcs as $k => $func)
+					{
+						if((new ReflectionMethod("{$class}::{$func}"))->getNumberOfRequiredParameters() > 0)
+						{
+							unset($funcs[$k]);
+						}
+					}
+					$funcs = array_values($funcs);
 					foreach($funcs as $k => $func)
 					{
 						$succ = false;
