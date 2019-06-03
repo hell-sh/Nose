@@ -1,12 +1,15 @@
 {
-  "name": "hell-sh/nose",
-  "description": "Nose sniffs out errors in your code with no dependencies.",
-  "homepage": "https://github.com/hell-sh/Nose",
-  "license": "MIT",
-  "bin": [
-    "nose"
-  ],
-  "autoload": {
-    "classmap": ["src/"]
-  }
+	"name": "hell-sh/nose",
+	"description": "Nose sniffs out errors in your code with no dependencies.",
+	"homepage": "https://github.com/hell-sh/Nose",
+	"license": "MIT",
+	"bin": [
+		"nose"
+	],
+	"autoload": {
+		"files": [
+			"src/AssertionFailedException.class.php",
+			"src/Nose.class.php"
+		]
+	}
 }
