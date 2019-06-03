@@ -5,16 +5,24 @@ require __DIR__."/src/Nose.class.php";
 $files = Nose::index(".");
 if(@$argv[1] == "dry")
 {
-    if(count($files) == 0)
-    {
-        die("No files were discovered.\n");
-    }
-    echo "Files discovered:\n";
-    foreach($files as $file)
-    {
-        echo substr($file, 2)."\n";
-    }
-    exit;
+	if(count($files) == 0)
+	{
+		die("No files were discovered.\n");
+	}
+	echo "Nose would execute these files:\n";
+	if(is_file("vendor/autoload.php"))
+	{
+		echo "vendor/autoload.php\n";
+	}
+	foreach($files as $file)
+	{
+		echo substr($file, 2)."\n";
+	}
+	exit;
+}
+if(is_file("vendor/autoload.php"))
+{
+	require "vendor/autoload.php";
 }
 $res = Nose::test($files);
 exit($res["errors"] == 0 && $res["warnings"] == 0 ? 0 : 1);
