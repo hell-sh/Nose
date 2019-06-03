@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
-require "src/AssertionFailedException.class.php";
-require "src/Nose.class.php";
+require __DIR__."/src/AssertionFailedException.class.php";
+require __DIR__."/src/Nose.class.php";
 $files = Nose::index(".");
 if(@$argv[1] == "dry")
 {
