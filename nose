@@ -3,12 +3,12 @@
 require __DIR__."/src/AssertionFailedException.class.php";
 require __DIR__."/src/Nose.class.php";
 $files = Nose::index(".");
+if(count($files) == 0)
+{
+	die("No files were discovered.\n");
+}
 if(@$argv[1] == "dry")
 {
-	if(count($files) == 0)
-	{
-		die("No files were discovered.\n");
-	}
 	echo "Nose would execute these files:\n";
 	if(is_file("vendor/autoload.php"))
 	{
