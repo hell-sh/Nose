@@ -171,7 +171,7 @@ if(!class_exists("Nose"))
 		 */
 		protected static function throwExceptionWithCodeSnippet()
 		{
-			$backtrace = debug_backtrace();
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT + DEBUG_BACKTRACE_IGNORE_ARGS);
 			for($i = 0; $i < count($backtrace); $i++)
 			{
 				$caller = $backtrace[$i];
