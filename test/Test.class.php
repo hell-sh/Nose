@@ -16,5 +16,6 @@ class MyTestClass
  */
 function myDeclassifiedFunction()
 {
-	Nose::assert("true" == false);
+	Nose::assertTrue("true" == true);
+	Nose::assertFalse("true" != false);
 }

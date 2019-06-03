@@ -100,6 +100,15 @@ class Nose
 	}
 
 	/**
+	 * @throws AssertionFailedException
+	 */
+	private static function codeFail()
+	{
+		$caller = debug_backtrace()[1];
+		throw new AssertionFailedException("Assertion failed: ".trim(file($caller["file"])[$caller["line"] - 1]));
+	}
+
+	/**
 	 * @param mixed $bool
 	 * @throws AssertionFailedException
 	 */
@@ -107,8 +116,31 @@ class Nose
 	{
 		if($bool == false)
 		{
-			$caller = debug_backtrace()[0];
-			throw new AssertionFailedException("Assertion failed: ".trim(file($caller["file"])[$caller["line"] - 1]));
+			self::codeFail();
+		}
+	}
+
+	/**
+	 * @param mixed $bool
+	 * @throws AssertionFailedException
+	 */
+	static function assertTrue($bool)
+	{
+		if($bool == false)
+		{
+			self::codeFail();
+		}
+	}
+
+	/**
+	 * @param mixed $bool
+	 * @throws AssertionFailedException
+	 */
+	static function assertFalse($bool)
+	{
+		if($bool == true)
+		{
+			self::codeFail();
 		}
 	}
 
