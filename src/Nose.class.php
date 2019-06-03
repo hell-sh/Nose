@@ -1,6 +1,8 @@
 <?php
 class Nose
 {
+	private static $asserted = false;
+
 	static function index($dir, $test_implicit = false)
 	{
 		if(in_array(substr($dir, -1), ["/", "\\"]))
@@ -33,6 +35,8 @@ class Nose
 
 	static function test($files)
 	{
+		$errors = 0;
+		$warnings = 0;
 		foreach($files as $i => $file)
 		{
 			$funcs = get_defined_functions()["user"];
@@ -50,6 +54,7 @@ class Nose
 				{
 					$last_func = !$classes && count($funcs) == ++$j;
 					$succ = false;
+					Nose::$asserted = false;
 					ob_start(function($buffer) use (&$last_file, &$last_func, &$func, &$succ)
 					{
 						// Reflecting function to preserve casing
@@ -73,16 +78,26 @@ class Nose
 					try
 					{
 						$func();
-						$succ = true;
+						if(Nose::$asserted)
+						{
+							$succ = true;
+						}
+						else
+						{
+							echo "This test didn't assert anything.";
+							$warnings++;
+						}
 					}
 					/** @noinspection PhpRedundantCatchClauseInspection */
 					catch(AssertionFailedException $e)
 					{
-						echo $e->getMessage()."\n";
+						echo "Assertion failed: ".$e->getMessage()."\n";
+						$errors++;
 					}
 					catch(Exception $e)
 					{
 						echo get_class($e).": ".$e->getMessage()."\n".$e->getTraceAsString()."\n";
+						$errors++;
 					}
 					ob_end_flush();
 				}
@@ -96,6 +111,7 @@ class Nose
 				foreach($funcs as $k => $func)
 				{
 					$succ = false;
+					Nose::$asserted = false;
 					ob_start(function($buffer) use (&$last_file, &$last_class, &$funcs, &$k, &$func, &$succ)
 					{
 						$out = ($last_file ? " " : "│")." ".($last_class ? " " : "│")." ".(count($funcs) - 1 == $k ? "└" : "├")." $func".($succ ? " ✓" : "")."\n";
@@ -117,78 +133,154 @@ class Nose
 					try
 					{
 						@eval("{$class}::{$func}();");
-						$succ = true;
+						if(Nose::$asserted)
+						{
+							$succ = true;
+						}
+						else
+						{
+							echo "This test didn't assert anything.";
+							$warnings++;
+						}
 					}
 					/** @noinspection PhpRedundantCatchClauseInspection */
 					catch(AssertionFailedException $e)
 					{
-						echo $e->getMessage()."\n";
+						echo "Assertion failed: ".$e->getMessage()."\n";
+						$errors++;
 					}
 					catch(Exception $e)
 					{
 						echo get_class($e).": ".$e->getMessage()."\n".$e->getTraceAsString()."\n";
+						$errors++;
 					}
 					ob_end_flush();
 				}
 			}
 		}
+		return [
+			"errors" => $errors,
+			"warnings" => $warnings
+		];
 	}
 
 	/**
 	 * @throws AssertionFailedException
 	 */
-	private static function codeFail()
+	protected static function throwExceptionWithCodeSnippet()
 	{
-		$caller = debug_backtrace()[1];
-		throw new AssertionFailedException("Assertion failed: ".trim(file($caller["file"])[$caller["line"] - 1]));
+		$backtrace = debug_backtrace();
+		for($i = 0; $i < count($backtrace); $i++)
+		{
+			$caller = $backtrace[$i];
+			if($caller["file"] != __FILE__)
+			{
+				throw new AssertionFailedException(trim(file($caller["file"])[$caller["line"] - 1]));
+			}
+		}
+		throw new Exception("Couldn't generate AssertionFailedException");
+	}
+
+	protected static function isExceptionWithCodeSnippetRecommended($expectation)
+	{
+		return is_bool($expectation) || $expectation === NULL;
 	}
 
 	/**
-	 * @param mixed $bool
+	 * @param mixed $reality
 	 * @throws AssertionFailedException
 	 */
-	static function assert($bool)
+	static function assert($reality)
 	{
-		if($bool == false)
+		Nose::$asserted = true;
+		if($reality == false)
 		{
 			self::codeFail();
 		}
 	}
 
 	/**
-	 * @param mixed $bool
+	 * @param mixed $reality
 	 * @throws AssertionFailedException
 	 */
-	static function assertTrue($bool)
+	static function assertNot($reality)
 	{
-		if($bool == false)
+		Nose::$asserted = true;
+		if($reality == true)
 		{
 			self::codeFail();
 		}
 	}
 
 	/**
-	 * @param mixed $bool
-	 * @throws AssertionFailedException
-	 */
-	static function assertFalse($bool)
-	{
-		if($bool == true)
-		{
-			self::codeFail();
-		}
-	}
-
-	/**
-	 * @param mixed $value
+	 * @param mixed $reality
 	 * @param mixed $expectation
 	 * @throws AssertionFailedException
 	 */
-	static function assertEquals($value, $expectation)
+	static function assertEquals($reality, $expectation)
 	{
-		if($value !== $expectation)
+		Nose::$asserted = true;
+		if($reality !== $expectation)
 		{
-			throw new AssertionFailedException("Failed asserting that ".var_export($value, true)." is equal to ".var_export($expectation, true).".");
+			if(self::isExceptionWithCodeSnippetRecommended($expectation))
+			{
+				self::throwExceptionWithCodeSnippet();
+			}
+			throw new AssertionFailedException(var_export($reality, true)." is not equal to ".var_export($expectation, true));
 		}
+	}
+
+	/**
+	 * @param mixed $reality
+	 * @param mixed $expectation
+	 * @throws AssertionFailedException
+	 */
+	static function assertNotEquals($reality, $unexpected)
+	{
+		Nose::$asserted = true;
+		if($reality === $unexpected)
+		{
+			if(self::isExceptionWithCodeSnippetRecommended($unexpected))
+			{
+				self::throwExceptionWithCodeSnippet();
+			}
+			throw new AssertionFailedException(var_export($reality, true)." is equal to ".var_export($unexpected, true));
+		}
+	}
+
+	/**
+	 * @param mixed $reality
+	 * @throws AssertionFailedException
+	 */
+	static function assertTrue($reality)
+	{
+		self::assertEquals($reality, true);
+	}
+
+	/**
+	 * @param mixed $reality
+	 * @throws AssertionFailedException
+	 */
+	static function assertFalse($reality)
+	{
+		self::assertEquals($reality, false);
+	}
+
+	/**
+	 * @param mixed $reality
+	 * @throws AssertionFailedException
+	 */
+	static function assertNull($reality)
+	{
+		self::assertEquals($reality, null);
+	}
+
+	/**
+	 * @param mixed $reality
+	 * @throws AssertionFailedException
+	 */
+	static function assertNotNull($reality)
+	{
+		self::assertNotEquals($reality, null);
 	}
 }

@@ -16,4 +16,5 @@ if(@$argv[1] == "dry")
     }
     exit;
 }
-Nose::test($files);
+$res = Nose::test($files);
+exit($res["errors"] == 0 && $res["warnings"] == 0 ? 0 : 1);
