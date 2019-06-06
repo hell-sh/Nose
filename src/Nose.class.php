@@ -316,6 +316,7 @@ if(!class_exists("Nose"))
 		 */
 		static function expectException($exception, $function)
 		{
+			Nose::$asserted = true;
 			$thrown = false;
 			try
 			{
