@@ -308,5 +308,34 @@ if(!class_exists("Nose"))
 		{
 			self::assertNotEquals($reality, null);
 		}
+
+		/**
+		 * @param string $exception
+		 * @param callable $function
+		 * @throws Exception
+		 */
+		static function expectException($exception, $function)
+		{
+			$thrown = false;
+			try
+			{
+				$function();
+			}
+			catch(Exception $e)
+			{
+				if($e instanceof $exception)
+				{
+					$thrown = true;
+				}
+				else
+				{
+					throw $e;
+				}
+			}
+			if(!$thrown)
+			{
+				throw new AssertionFailedException($exception." was not thrown");
+			}
+		}
 	}
 }

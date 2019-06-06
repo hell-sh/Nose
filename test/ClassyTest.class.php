@@ -10,6 +10,23 @@ class MyTestClass
 		Nose::assertEquals(2 + 2, 5);
 	}
 
+	function myExceptionTest()
+	{
+		Nose::expectException(Exception::class, function()
+		{
+			throw new Exception();
+		});
+		Nose::expectException(Exception::class, function(){});
+	}
+
+	function myOtherExceptionTest()
+	{
+		Nose::expectException(RuntimeException::class, function()
+		{
+			throw new Exception();
+		});
+	}
+
 	function iWillBeIgnored($because_of_my_required_parameter) {}
 }
 
