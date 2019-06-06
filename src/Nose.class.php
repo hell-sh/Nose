@@ -182,20 +182,28 @@ if(!class_exists("Nose"))
 		}
 
 		/**
-		 * @throws AssertionFailedException
+		 * @throws Exception
 		 */
-		protected static function throwExceptionWithCodeSnippet()
+		protected static function getCaller()
 		{
 			$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT + DEBUG_BACKTRACE_IGNORE_ARGS);
 			for($i = 0; $i < count($backtrace); $i++)
 			{
-				$caller = $backtrace[$i];
-				if($caller["file"] != __FILE__)
+				if($backtrace[$i]["file"] != __FILE__)
 				{
-					throw new AssertionFailedException(trim(file($caller["file"])[$caller["line"] - 1]));
+					return $backtrace[$i];
 				}
 			}
-			throw new Exception("Couldn't generate AssertionFailedException");
+			throw new Exception("Failed to get caller");
+		}
+
+		/**
+		 * @throws AssertionFailedException
+		 */
+		protected static function throwExceptionWithCodeSnippet()
+		{
+			$caller = self::getCaller();
+			throw new AssertionFailedException(trim(file($caller["file"])[$caller["line"] - 1]));
 		}
 
 		protected static function isExceptionWithCodeSnippetRecommended($expectation)
