@@ -220,7 +220,7 @@ if(!class_exists("Nose"))
 			Nose::$asserted = true;
 			if($reality == false)
 			{
-				self::codeFail();
+				self::throwExceptionWithCodeSnippet();
 			}
 		}
 
@@ -233,7 +233,7 @@ if(!class_exists("Nose"))
 			Nose::$asserted = true;
 			if($reality == true)
 			{
-				self::codeFail();
+				self::throwExceptionWithCodeSnippet();
 			}
 		}
 
