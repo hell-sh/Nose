@@ -251,7 +251,7 @@ if(!class_exists("Nose"))
 				{
 					self::throwExceptionWithCodeSnippet();
 				}
-				throw new AssertionFailedException(var_export($reality, true)." is not equal to ".var_export($expectation, true));
+				throw new AssertionFailedException(var_export($reality, true)." is not equal to ".var_export($expectation, true)." on line ".self::getCaller()["line"]);
 			}
 		}
 
@@ -269,7 +269,7 @@ if(!class_exists("Nose"))
 				{
 					self::throwExceptionWithCodeSnippet();
 				}
-				throw new AssertionFailedException(var_export($reality, true)." is equal to ".var_export($unexpected, true));
+				throw new AssertionFailedException(var_export($reality, true)." is equal to ".var_export($unexpected, true)." on line ".self::getCaller()["line"]);
 			}
 		}
 
@@ -335,7 +335,7 @@ if(!class_exists("Nose"))
 			}
 			if(!$thrown)
 			{
-				throw new AssertionFailedException($exception." was not thrown");
+				throw new AssertionFailedException($exception." was not thrown on line ".self::getCaller()["line"]);
 			}
 		}
 	}
