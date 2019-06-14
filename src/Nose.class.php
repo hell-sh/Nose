@@ -244,6 +244,10 @@ if(!class_exists("Nose"))
 		 */
 		static function assertEquals($reality, $expectation)
 		{
+			if(extension_loaded("gmp") && ($reality instanceof GMP || $expectation instanceof GMP))
+			{
+				return Nose::assert(gmp_cmp($reality, $expectation) == 0);
+			}
 			Nose::$asserted = true;
 			if($reality !== $expectation)
 			{
