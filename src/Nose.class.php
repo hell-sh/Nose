@@ -37,6 +37,8 @@ if(!class_exists("Nose"))
 
 		static function test($files)
 		{
+			$tests_ran = 0;
+			$successes = 0;
 			$errors = 0;
 			$warnings = 0;
 			foreach($files as $i => $file)
@@ -90,6 +92,7 @@ if(!class_exists("Nose"))
 							if(Nose::$asserted)
 							{
 								$succ = true;
+								$successes++;
 							}
 							else
 							{
@@ -107,6 +110,10 @@ if(!class_exists("Nose"))
 						{
 							echo get_class($e).": ".$e->getMessage()."\n".$e->getTraceAsString()."\n";
 							$errors++;
+						}
+						finally
+						{
+							$tests_ran++;
 						}
 						ob_end_flush();
 					}
@@ -153,6 +160,7 @@ if(!class_exists("Nose"))
 							if(Nose::$asserted)
 							{
 								$succ = true;
+								$successes++;
 							}
 							else
 							{
@@ -171,11 +179,17 @@ if(!class_exists("Nose"))
 							echo get_class($e).": ".$e->getMessage()."\n".$e->getTraceAsString()."\n";
 							$errors++;
 						}
+						finally
+						{
+							$tests_ran++;
+						}
 						ob_end_flush();
 					}
 				}
 			}
 			return [
+				"tests_ran" => $tests_ran,
+				"successes" => $successes,
 				"errors" => $errors,
 				"warnings" => $warnings
 			];

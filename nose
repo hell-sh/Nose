@@ -5,18 +5,18 @@ require __DIR__."/src/Nose.class.php";
 $files = Nose::index(".");
 if(count($files) == 0)
 {
-	die("No files were discovered.\n");
+	die("No files were discovered.\r\n");
 }
 if(@$argv[1] == "dry")
 {
-	echo "Nose would execute these files:\n";
+	echo "Nose would execute these files:\r\n";
 	if(is_file("vendor/autoload.php"))
 	{
-		echo "vendor/autoload.php\n";
+		echo "vendor/autoload.php\r\n";
 	}
 	foreach($files as $file)
 	{
-		echo substr($file, 2)."\n";
+		echo substr($file, 2)."\r\n";
 	}
 	exit;
 }
@@ -25,4 +25,57 @@ if(is_file("vendor/autoload.php"))
 	require "vendor/autoload.php";
 }
 $res = Nose::test($files);
-exit($res["errors"] == 0 && $res["warnings"] == 0 ? 0 : 1);
+echo "\r\n".$res["tests_ran"]." test".($res["tests_ran"] == 1 ? "" : "s")." ran ";
+if($res["errors"] == 0 && $res["warnings"] == 0)
+{
+	die("flawlessly.\r\n");
+}
+if($res["warnings"] > 0)
+{
+	echo "with ".$res["warnings"]." warning".($res["warnings"] == 1 ? "" : "s");
+	if($res["errors"] == 0)
+	{
+		if($res["successes"] == 0)
+		{
+			echo ". At least there were no errors";
+		}
+		else
+		{
+			echo " but there were no errors";
+		}
+	}
+}
+if($res["errors"] > 0)
+{
+	if($res["warnings"] == 0)
+	{
+		echo "with ";
+	}
+	else
+	{
+		echo " and ";
+	}
+	echo $res["errors"]." error".($res["errors"] == 1 ? "" : "s");
+}
+if($res["successes"] > 0)
+{
+	if($res["errors"] == 0)
+	{
+		echo " and ".$res["successes"]." success".($res["successes"] == 1 ? "" : "es");
+	}
+	else
+	{
+		echo ". At least there ";
+		if($res["warnings"] == 0)
+		{
+			echo "were no warnings and ";
+		}
+		else
+		{
+			echo ($res["successes"] == 1 ? "was " : "were ");
+		}
+		echo $res["successes"]." successful test".($res["successes"] == 1 ? "" : "s");
+	}
+}
+echo ".\r\n";
+exit(1);
