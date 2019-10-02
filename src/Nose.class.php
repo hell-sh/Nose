@@ -200,7 +200,7 @@ if(!class_exists("Nose"))
 		 */
 		protected static function getCaller()
 		{
-			$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT + DEBUG_BACKTRACE_IGNORE_ARGS);
+			$backtrace = debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT | DEBUG_BACKTRACE_IGNORE_ARGS);
 			for($i = 0; $i < count($backtrace); $i++)
 			{
 				if($backtrace[$i]["file"] != __FILE__)
