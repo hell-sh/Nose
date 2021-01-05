@@ -55,7 +55,8 @@ if(!class_exists("Nose"))
 				{
 					foreach($funcs as $j => $func)
 					{
-						if((new ReflectionFunction($func))->getNumberOfRequiredParameters() > 0)
+						$rf = new ReflectionFunction($func);
+						if($rf->getNumberOfRequiredParameters() > 0 || $rf->getReturnType() !== null)
 						{
 							unset($funcs[$j]);
 						}

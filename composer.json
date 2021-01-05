@@ -11,5 +11,8 @@
 			"src/AssertionFailedException.class.php",
 			"src/Nose.class.php"
 		]
+	},
+	"require": {
+		"php": ">=7.0"
 	}
 }
